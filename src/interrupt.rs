@@ -1,12 +1,10 @@
 use cortex_m::peripheral::NVIC;
 use stm32f4xx_hal::interrupt;
 use stm32f4xx_hal::stm32;
-use crate::{tim, esp};
+use crate::{tim, esp, handle};
 use crate::tim::{SECOND, SECOND_VALUE};
 use crate::esp::{MSG_LEN, BUFFER, RX_STATE, BUFFER_LEN};
 use core::sync::atomic::Ordering;
-use crate::usb_ttl::USART1;
-use core::fmt::Write;
 
 /// NVIC enable
 pub fn nvic_enable() {
@@ -44,7 +42,9 @@ fn USART2() {
         if let Ok(msg) = core::str::from_utf8(&BUFFER[2..6]) {
             if msg.contains("+IPD") {
                 esp::usart_disable_idle();
-                esp::handle_request();
+                handle::handle_request();
+                esp::usart_enable_idle();
+                RX_STATE.store(false, Ordering::SeqCst);
             }
         }
     }

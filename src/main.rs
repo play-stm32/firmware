@@ -10,15 +10,14 @@ mod tim;
 mod interrupt;
 mod esp;
 mod sdcard;
+mod handle;
 
 use stm32f4xx_hal::stm32;
 use core::panic::PanicInfo;
-use core::fmt::{Write, Pointer};
+use core::fmt::Write;
 use crate::usb_ttl::USART1;
 use esp8266::command::AT;
 use crate::esp::{USART2, RX_STATE, MSG_LEN, BUFFER};
-use fat32::base::Volume;
-use sdio_sdhc::sdcard::Card;
 
 #[no_mangle]
 #[inline(never)]

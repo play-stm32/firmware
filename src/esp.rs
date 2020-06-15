@@ -1,13 +1,9 @@
 use stm32f4xx_hal::stm32;
 use core::fmt::Error;
 use core::str;
-use embedded_hal::serial::Write;
 use core::sync::atomic::AtomicBool;
-use protocol::protocol::Request;
-use protocol::protocol::Type;
-use protocol::protocol::Board;
-use crate::led;
-use core::str::FromStr;
+use embedded_hal::serial::Write as SerialWrite;
+use core::fmt::Write;
 
 const DMA_STREAM: usize = 5;
 pub const BUFFER_LEN: usize = 1000;
@@ -45,6 +41,14 @@ pub fn serial_init(rcc: &mut stm32::RCC, gpioa: &mut stm32::GPIOA, usart2: &mut 
     usart2.cr3.write(|w| w.dmar().set_bit());
 }
 
+pub fn send_msg_to_server(msg: &str) {
+    let len = msg.len();
+    writeln!(USART2, "AT+CIPSEND={}\r", len).unwrap();
+    for _ in 0..50000 {}
+    write!(USART2, "{}", msg).unwrap();
+    usart_clear_idle();
+}
+
 pub fn usart_disable_idle() {
     let ptr = unsafe { &*stm32::USART2::ptr() };
     ptr.cr1.modify(|_r, w| w.idleie().clear_bit());
@@ -53,40 +57,6 @@ pub fn usart_disable_idle() {
 pub fn usart_enable_idle() {
     let ptr = unsafe { &*stm32::USART2::ptr() };
     ptr.cr1.modify(|_r, w| w.idleie().set_bit());
-}
-
-pub fn handle_request() {
-    unsafe {
-        let mut index = 0;
-        for i in 8.. {
-            if BUFFER[i] == ':' as u8 {
-                index = i + 1;
-                break;
-            }
-        }
-
-        let len = core::str::from_utf8(&BUFFER[7..index - 1]).unwrap();
-        let mut len = usize::from_str(len).unwrap();
-        if BUFFER[index + len - 1].is_ascii_control() { len -= 1; }
-
-        if let Ok(request) = serde_json_core::from_slice(&BUFFER[index..index + len])
-            : Result<Request, serde_json_core::de::Error> {
-            match request.request {
-                Type::Board { command } => {
-                    match command {
-                        Board::Reboot => {}
-                        Board::Upgrade => {}
-                        Board::LEDLight => {
-                            led::green_light();
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    usart_enable_idle();
 }
 
 pub fn usart_clear_idle() {

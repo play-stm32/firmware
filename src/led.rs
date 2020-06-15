@@ -41,7 +41,3 @@ pub fn green_dark() {
     };
     ptr.bsrr.write(|w| w.bs10().set());
 }
-
-
-
-
