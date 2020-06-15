@@ -1,10 +1,10 @@
 use cortex_m::peripheral::NVIC;
 use stm32f4xx_hal::interrupt;
 use stm32f4xx_hal::stm32;
+use core::sync::atomic::Ordering;
 use crate::{tim, esp, handle};
 use crate::tim::{SECOND, SECOND_VALUE};
 use crate::esp::{MSG_LEN, BUFFER, RX_STATE, BUFFER_LEN};
-use core::sync::atomic::Ordering;
 
 /// NVIC enable
 pub fn nvic_enable() {

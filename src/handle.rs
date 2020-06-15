@@ -1,7 +1,7 @@
-use crate::esp::{BUFFER, send_msg_to_server};
 use core::str::FromStr;
 use protocol::protocol::{Board, Request};
 use crate::led;
+use crate::esp::{BUFFER, send_msg_to_server};
 
 pub fn handle_request() {
     unsafe {
@@ -19,9 +19,10 @@ pub fn handle_request() {
 
         if let Ok(request) = serde_json_core::from_slice::<Request>(&BUFFER[index..index + len]) {
             match request.board {
-                Board::LEDLight => {
-                    led::green_light();
-                }
+                Board::GreenLEDLight => { led::green_light(); }
+                Board::GreenLEDDark => { led::green_dark(); }
+                Board::RedLEDLight => { led::red_light(); }
+                Board::RedLEDDark => { led::red_dark(); }
                 _ => {}
             }
             send_msg_to_server("OK");

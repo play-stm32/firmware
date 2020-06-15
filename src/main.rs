@@ -15,9 +15,9 @@ mod handle;
 use stm32f4xx_hal::stm32;
 use core::panic::PanicInfo;
 use core::fmt::Write;
-use crate::usb_ttl::USART1;
 use esp8266::command::AT;
 use crate::esp::{USART2, RX_STATE, MSG_LEN, BUFFER};
+use crate::usb_ttl::USART1;
 
 #[no_mangle]
 #[inline(never)]
