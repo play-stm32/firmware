@@ -1,0 +1,5 @@
+MEMORY
+{
+    FLASH (rx) : ORIGIN = 0x08020000‬, LENGTH = 128K
+    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
+}
