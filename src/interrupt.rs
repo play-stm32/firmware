@@ -15,6 +15,7 @@ pub fn nvic_enable() {
 }
 
 /// NVIC disable
+#[allow(dead_code)]
 pub fn nvic_disable() {
     NVIC::mask(stm32::interrupt::TIM2);
     NVIC::mask(stm32::interrupt::USART2);

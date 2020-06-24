@@ -1,5 +1,5 @@
 use core::str::FromStr;
-use protocol::protocol::{Board, Request};
+use protocol::protocol::Command;
 use crate::led;
 use crate::esp::{BUFFER, send_msg_to_server};
 
@@ -17,12 +17,12 @@ pub fn handle_request() {
         let mut len = usize::from_str(len).unwrap();
         if BUFFER[index + len - 1].is_ascii_control() { len -= 1; }
 
-        if let Ok(request) = serde_json_core::from_slice::<Request>(&BUFFER[index..index + len]) {
-            match request.board {
-                Board::GreenLEDLight => { led::green_light(); }
-                Board::GreenLEDDark => { led::green_dark(); }
-                Board::RedLEDLight => { led::red_light(); }
-                Board::RedLEDDark => { led::red_dark(); }
+        if let Ok(command) = serde_json_core::from_slice::<Command>(&BUFFER[index..index + len]) {
+            match command {
+                Command::GreenLEDLight => { led::green_light(); }
+                Command::GreenLEDDark => { led::green_dark(); }
+                Command::RedLEDLight => { led::red_light(); }
+                Command::RedLEDDark => { led::red_dark(); }
                 _ => {}
             }
             send_msg_to_server("OK");

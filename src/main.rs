@@ -11,6 +11,7 @@ mod interrupt;
 mod esp;
 mod sdcard;
 mod handle;
+mod config;
 
 use stm32f4xx_hal::stm32;
 use core::panic::PanicInfo;
@@ -18,6 +19,7 @@ use core::fmt::Write;
 use esp8266::command::AT;
 use crate::esp::{USART2, RX_STATE, MSG_LEN, BUFFER};
 use crate::usb_ttl::USART1;
+use crate::config::{Config, CONFIG_BUF};
 
 #[no_mangle]
 #[inline(never)]
@@ -35,8 +37,9 @@ fn main() -> ! {
     led::green_dark();
     led::red_dark();
 
-    let mut buf = [0; 512];
-    let (ssid, passwd) = sdcard::get_wifi_config(&mut buf);
+    let config = unsafe {
+        Config::get_config(&mut CONFIG_BUF).unwrap()
+    };
 
     let at = unsafe {
         AT::new(USART2,
@@ -49,9 +52,9 @@ fn main() -> ! {
 
     at.wait_ready(1).unwrap().
         set_wifi_mode_no_save(1, 1).unwrap().
-        connect_wifi(ssid, passwd, 10).unwrap().
-        connect_tcp("10.10.10.184", 1122, 2).unwrap().
-        send_msg_to_server("8b71ba1e-d6c2-46bc-9f34-6664bd3d9c19", 2).unwrap();
+        connect_wifi(config.wifi_ssid, config.wifi_pwd, 10).unwrap().
+        connect_tcp(config.server, config.port, 2).unwrap().
+        send_msg_to_server(config.token, 2).unwrap();
 
     loop {}
 }

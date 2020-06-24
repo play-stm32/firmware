@@ -1,6 +1,4 @@
 use stm32f4xx_hal::stm32;
-use fat32::base::Volume;
-use sdio_sdhc::sdcard::Card;
 
 pub fn init(
     rcc: &mut stm32::RCC,
@@ -49,21 +47,4 @@ pub fn init(
             .pupdr11().pull_up()
             .pupdr12().pull_up());
     gpiod.pupdr.modify(|_r, w| w.pupdr2().pull_up());
-}
-
-pub fn get_wifi_config(buf: &mut [u8]) -> (&str, &str) {
-    let card = Card::init().unwrap();
-    let volume = Volume::new(card);
-    let len =  volume.root_dir().
-        load_file("wificonfig").unwrap().
-        read(buf).unwrap();
-    match core::str::from_utf8(&buf[0..len]) {
-        Ok(str) => {
-            let index = str.find(',').unwrap();
-            (&str[0..index], &str[index + 1..])
-        }
-        Err(_) => {
-            ("", "")
-        }
-    }
 }
