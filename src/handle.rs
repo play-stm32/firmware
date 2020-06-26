@@ -23,7 +23,8 @@ pub fn handle_request() {
                 Command::GreenLEDDark => { led::green_dark(); }
                 Command::RedLEDLight => { led::red_light(); }
                 Command::RedLEDDark => { led::red_dark(); }
-                _ => {}
+                Command::Reboot => {}
+                Command::Upgrade => {}
             }
             send_msg_to_server("OK");
         }

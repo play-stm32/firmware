@@ -25,6 +25,7 @@ use crate::config::{Config, CONFIG_BUF};
 #[inline(never)]
 fn main() -> ! {
     offset_interrupt();
+
     let mut dp = stm32::Peripherals::take().unwrap();
     rcc::clock_init(&mut dp.RCC, &mut dp.FLASH);
     usb_ttl::init(&mut dp.RCC, &mut dp.GPIOA, &mut dp.USART1);
