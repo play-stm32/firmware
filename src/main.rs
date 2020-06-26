@@ -16,7 +16,7 @@ mod config;
 use stm32f4xx_hal::stm32;
 use core::panic::PanicInfo;
 use core::fmt::Write;
-use esp8266::command::AT;
+use esp8266::command::{AT, ATError};
 use crate::esp::{USART2, RX_STATE, MSG_LEN, BUFFER};
 use crate::usb_ttl::USART1;
 use crate::config::{Config, CONFIG_BUF};
@@ -51,11 +51,23 @@ fn main() -> ! {
                 1)
     };
 
-    at.wait_ready(1).unwrap().
-        set_wifi_mode_no_save(1, 1).unwrap().
-        connect_wifi(config.wifi_ssid, config.wifi_pwd, 10).unwrap().
-        connect_tcp(config.server, config.port, 2).unwrap().
-        send_msg_to_server(config.token, 2).unwrap();
+    let op = || -> Result<(), ATError> {
+        Ok(at.wait_ready(1)?.
+            set_wifi_mode_no_save(1, 1)?.
+            connect_wifi(config.wifi_ssid, config.wifi_pwd, 10)?.
+            connect_tcp(config.server, config.port, 2)?.
+            send_msg_to_server(config.token, 2)?)
+    };
+
+    for i in 1..11 {
+        writeln!(USART1, "try to init net service {} times", i).unwrap();
+        if let Err(_) = op() {
+            writeln!(USART1, "try {} times error", i).unwrap();
+        } else {
+            writeln!(USART1, "init net service successfully").unwrap();
+            break;
+        };
+    }
 
     loop {}
 }
