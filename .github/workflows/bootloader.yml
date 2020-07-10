@@ -1,0 +1,48 @@
+name: firmware
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build Firmware
+    runs-on: macos-latest 
+    steps: 
+    - uses: actions/checkout@v2
+    
+    - name: install arm-none-eabi-gcc toolchain
+      run: brew tap ArmMbed/homebrew-formulae && brew install arm-none-eabi-gcc 
+      
+    - name: add thumbv7m-none-eabi target
+      uses: actions-rs/toolchain@v1
+      with: 
+        toolchain: nightly
+        target: thumbv7m-none-eabi
+        override: true
+
+    - name: build firmware
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --target thumbv7m-none-eabi
+    
+    - name: make firmware dir
+      run: mkdir firmware
+    
+    - name: rename firmware to firmware.elf
+      run: mv ./target/thumbv7m-none-eabi/debug/firmware ./firmware/firmware.elf
+    
+    - name: turn elf to bin
+      run: arm-none-eabi-objcopy -O binary ./firmware/firmware.elf ./firmware/firmware.bin
+          
+    - name: upload a build artifact
+      uses: actions/upload-artifact@master
+      with:
+          name: firmware
+          path: ./firmware
