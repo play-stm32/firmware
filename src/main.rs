@@ -1,10 +1,8 @@
-#![feature(panic_info_message)]
 #![no_std]
 #![no_main]
-#![feature(type_ascription)]
 #![feature(llvm_asm)]
 #![feature(naked_functions)]
-#![feature(core_intrinsics)]
+#![feature(panic_info_message)]
 
 mod rcc;
 mod led;
@@ -12,6 +10,7 @@ mod usb_ttl;
 mod tim;
 mod switch_context;
 mod esp;
+mod interrupt;
 mod sdcard;
 mod handle;
 mod config;
@@ -49,8 +48,7 @@ fn main() -> ! {
 
     led::green_dark();
     led::red_dark();
-    // net::init();
-
+    net::init();
 
     let mut t1 = unsafe {
         Process::new(TASK_STACKS[0].as_mut_ptr(), task1)

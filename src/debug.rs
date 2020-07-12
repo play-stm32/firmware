@@ -133,7 +133,7 @@ unsafe fn kernel_hardfault(faulting_stack: *mut u32) {
 #[naked]
 pub unsafe extern "C" fn hard_fault_handler() {
     let faulting_stack: *mut u32;
-    let kernel_stack: bool;
+    let _kernel_stack: bool;
 
     llvm_asm!("
      mov    r1, 0                       \n\
@@ -142,7 +142,7 @@ pub unsafe extern "C" fn hard_fault_handler() {
      mrseq  r0, msp                     \n\
      addeq  r1, 1                       \n\
      mrsne  r0, psp                     "
-    : "={r0}"(faulting_stack), "={r1}"(kernel_stack)
+    : "={r0}"(faulting_stack), "={r1}"(_kernel_stack)
     :
     : "r0", "r1"
     : "volatile"
