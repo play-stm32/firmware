@@ -10,7 +10,7 @@ extern "C" {
 }
 
 // interrupt vertor that will be linked to the very start of FLASH
-#[link_section = ".isr_vector"]
+#[link_section = ".vector"]
 #[used]
 pub static ISR_VECTOR: [unsafe extern "C" fn(); 15] = [
     reset_handler,

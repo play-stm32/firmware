@@ -17,7 +17,7 @@ SECTIONS
         /* Initial Stack Pointer (SP) value */
         LONG(_sstack);
 
-        KEEP(*(.isr_vector))
+        KEEP(*(.vector))
 
         . = ALIGN(4);
     } > FLASH

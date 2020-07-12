@@ -130,25 +130,12 @@ unsafe fn kernel_hardfault(faulting_stack: *mut u32) {
     );
 }
 
-
+#[naked]
 pub unsafe extern "C" fn hard_fault_handler() {
     let faulting_stack: *mut u32;
     let kernel_stack: bool;
 
-    llvm_asm!(
-     "/* Read the SCB registers. */
-     ldr r0, =SCB_REGISTERS
-     ldr r1, =0xE000ED14
-     ldr r2, [r1, #0] /* CCR */
-     str r2, [r0, #0]
-     ldr r2, [r1, #20] /* CFSR */
-     str r2, [r0, #4]
-     ldr r2, [r1, #24] /* HFSR */
-     str r2, [r0, #8]
-     ldr r2, [r1, #32] /* MMFAR */
-     str r2, [r0, #12]
-     ldr r2, [r1, #36] /* BFAR */
-     str r2, [r0, #16]
+    llvm_asm!("
      mov    r1, 0                       \n\
      tst    lr, #4                      \n\
      itte   eq                          \n\
@@ -161,25 +148,7 @@ pub unsafe extern "C" fn hard_fault_handler() {
     : "volatile"
     );
 
-    if kernel_stack {
-        kernel_hardfault(faulting_stack);
-    } else {
-        // hard fault occurred in an app, not the kernel. The app should be
-        //  marked as in an error state and handled by the kernel
-        llvm_asm!(
-            "ldr r0, =APP_HARD_FAULT
-              mov r1, #1 /* Fault */
-              str r1, [r0, #0]
-              /* Set thread mode to privileged */
-              mov r0, #0
-              msr CONTROL, r0
-              /* CONTROL writes must be followed by ISB */
-              /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0321a/BIHFJCAC.html */
-              isb
-              movw LR, #0xFFF9
-              movt LR, #0xFFFF"
-        : : : : "volatile" );
-    }
+    kernel_hardfault(faulting_stack);
 }
 
 

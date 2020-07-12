@@ -4,6 +4,7 @@
 #![feature(type_ascription)]
 #![feature(llvm_asm)]
 #![feature(naked_functions)]
+#![feature(core_intrinsics)]
 
 mod rcc;
 mod led;
