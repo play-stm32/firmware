@@ -1,4 +1,5 @@
 use crate::switch_context::{svc_handler, systick_handler};
+use crate::debug::hard_fault_handler;
 
 extern "C" {
     static mut _sidata: u32;
@@ -14,7 +15,7 @@ extern "C" {
 pub static ISR_VECTOR: [unsafe extern "C" fn(); 15] = [
     reset_handler,
     unhandled_interrupt, // NMI
-    unhandled_interrupt,  // Hard Fault
+    hard_fault_handler,  // Hard Fault
     unhandled_interrupt, // MemManage
     unhandled_interrupt, // BusFault
     unhandled_interrupt, // UsageFault

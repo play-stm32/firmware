@@ -17,6 +17,7 @@ mod config;
 mod net;
 mod systick;
 mod startup;
+mod debug;
 
 use stm32f4xx_hal::stm32;
 use core::panic::PanicInfo;
