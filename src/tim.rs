@@ -21,12 +21,12 @@ pub fn init(rcc: &mut stm32::RCC, tim: &mut stm32::TIM2) {
     tim.egr.write(|w| w.ug().set_bit());
 }
 
-pub fn delay(delay_time: usize) {
+pub fn delay(second: usize) {
     unsafe {
         SECOND = 0;
-        SECOND_VALUE = delay_time;
+        SECOND_VALUE = second;
         enable_count();
-        while !(SECOND == SECOND_VALUE) {}
+        while SECOND != SECOND_VALUE {}
     }
 }
 

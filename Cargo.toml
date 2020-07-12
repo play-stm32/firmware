@@ -8,8 +8,7 @@ edition = "2018"
 
 [dependencies]
 cortex-m = "0.6"
-cortex-m-rt = "0.6.12"
-stm32f4xx-hal = { version = "0.8", features = ["stm32f407", "rt"] }
+stm32f4xx-hal = { version = "0.8", features = ["stm32f407"] }
 sdio_sdhc = { version = "0.2", features = ["filesystem"] }
 fat32 = { version = "0.1", features = ["512"] }
 esp8266 = { version = "0.1", path = "../esp8266" }
