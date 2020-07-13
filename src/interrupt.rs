@@ -1,7 +1,25 @@
 use core::sync::atomic::Ordering;
+use stm32f4xx_hal::stm32 as stm32;
+use cortex_m::peripheral::NVIC;
+
 use crate::{tim, esp, handle};
 use crate::tim::{SECOND, SECOND_VALUE};
 use crate::esp::{MSG_LEN, BUFFER, RX_STATE, BUFFER_LEN};
+
+/// NVIC enable
+pub fn nvic_enable() {
+    unsafe {
+        NVIC::unmask(stm32::Interrupt::TIM2);
+        NVIC::unmask(stm32::Interrupt::USART2);
+    }
+}
+
+/// NVIC disable
+#[allow(dead_code)]
+pub fn nvic_disable() {
+    NVIC::mask(stm32::Interrupt::TIM2);
+    NVIC::mask(stm32::Interrupt::USART2);
+}
 
 /// handle TIM2 interrupt
 pub unsafe extern "C" fn tim2_handler() {

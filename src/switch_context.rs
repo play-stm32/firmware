@@ -1,4 +1,42 @@
 use core::ptr::write_volatile;
+use alloc::collections::VecDeque;
+
+pub struct Processes {
+    process: VecDeque<Process>
+}
+
+impl Processes {
+    pub fn with_capacity(capacity: usize) -> Self {
+        let v: VecDeque<Process> = VecDeque::with_capacity(capacity);
+        Self {
+            process: v
+        }
+    }
+
+    pub fn push_front(&mut self, p: Process) {
+        self.process.push_front(p);
+    }
+
+    pub fn push_back(&mut self, p: Process) {
+        self.process.push_back(p);
+    }
+
+    pub fn pop_front(&mut self) -> Process {
+        self.process.pop_front().unwrap()
+    }
+
+    pub fn pop_back(&mut self) -> Process {
+        self.process.pop_back().unwrap()
+    }
+
+    pub fn run(&mut self) -> ! {
+        loop {
+            let mut p = self.pop_front();
+            p.run();
+            self.push_back(p);
+        }
+    }
+}
 
 pub struct Process {
     stack_ptr: *mut usize,
@@ -16,7 +54,7 @@ impl Process {
     }
 
     /// Switch context from kernel to task
-    pub fn switch_to_task(&mut self) {
+    pub fn run(&mut self) {
         unsafe { self.stack_ptr = switch(self.stack_ptr, &mut self.states) }
     }
 }
