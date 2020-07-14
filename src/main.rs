@@ -33,7 +33,7 @@ use crate::switch_context::{Process, Processes};
 #[global_allocator]
 static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
 
-const TASK_NUM: usize = 2;
+const TASK_NUM: usize = 3;
 const TASK_STACK_SIZE: usize = 200;
 static mut TASK_STACKS: [[usize; TASK_STACK_SIZE]; TASK_NUM] = [[0; TASK_STACK_SIZE]; TASK_NUM];
 
@@ -42,6 +42,7 @@ static mut TASK_STACKS: [[usize; TASK_STACK_SIZE]; TASK_NUM] = [[0; TASK_STACK_S
 fn main() -> ! {
     unsafe { ALLOCATOR.init(0x20000000, 1024) }
     unsafe { offset_interrupt(); }
+    let mut ps = Processes::with_capacity(2);
 
     let mut cp = cortex_m::Peripherals::take().unwrap();
     let mut dp = stm32::Peripherals::take().unwrap();
@@ -58,34 +59,14 @@ fn main() -> ! {
 
     led::green_dark();
     led::red_dark();
-    // wifi::init();
+    wifi::init();
 
-    let t1 = unsafe { Process::new(TASK_STACKS[0].as_mut_ptr(), test1) };
-    let t2 = unsafe { Process::new(TASK_STACKS[1].as_mut_ptr(), test2) };
-
-    let mut ps = Processes::with_capacity(2);
-    ps.push_front(t1);
-    ps.push_front(t2);
     ps.run();
 }
 
 unsafe fn offset_interrupt() {
     let ptr = &*cortex_m::peripheral::SCB::ptr();
     ptr.vtor.write(0x20000);
-}
-
-#[no_mangle]
-fn test1() -> ! {
-    loop {
-        writeln!(USART1, "test1").unwrap();
-    }
-}
-
-#[no_mangle]
-fn test2() -> ! {
-    loop {
-        writeln!(USART1, "test2").unwrap();
-    }
 }
 
 #[panic_handler]
