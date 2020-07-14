@@ -15,7 +15,12 @@ impl Processes {
         }
     }
 
-    pub fn push(&mut self, p: Process) {
+    pub fn add_process(&mut self, p: Process) {
+        self.process.push_front(p);
+        self.process_count += 1;
+    }
+
+    pub fn add_process_back(&mut self, p: Process) {
         self.process.push_back(p);
         self.process_count += 1;
     }
@@ -32,7 +37,7 @@ impl Processes {
             loop {
                 let mut p = self.pop().unwrap();
                 p.run();
-                self.push(p);
+                self.add_process_back(p);
             }
         }
     }
